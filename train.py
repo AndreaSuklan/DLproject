@@ -9,6 +9,7 @@ from torch.optim import SGD
 from config import INIT_LR, NUM_EPOCHS, BATCH_SIZE, DECAY, MOMENTUM, IMG_SIZE, PATCH_SIZE
 
 # Import from modular files
+from models.HG import HG
 from models.SimpleCNN import CNN
 from transforms import train_transform, test_transform, transform_batch
 from train_utils import train_model 
@@ -19,10 +20,13 @@ from torchvision.models import googlenet
 from torchvision.models import VisionTransformer
 
 from transformers import ViTModel, ViTConfig, ViTForImageClassification
+
 def get_model(name: str, num_classes: int):
     name = name.lower()
     if name == "cnn":
         return CNN(num_classes)
+    elif name == "hg":
+        return HG(num_classes)
     elif name == "resnet":
         return resnet50()
     elif name == "googlenet":
@@ -51,8 +55,8 @@ def prepare_dataset():
     ds["train"].set_format(type='torch', columns=['image', 'label'])
     ds["test"].set_format(type='torch', columns=['image', 'label'])
 
-    train_loader = DataLoader(ds["train"], batch_size=BATCH_SIZE, shuffle=True)
-    test_loader = DataLoader(ds["test"], batch_size=BATCH_SIZE)
+    train_loader = DataLoader(ds["train"], batch_size=BATCH_SIZE, shuffle=True, num_workers=2)
+    test_loader = DataLoader(ds["test"], batch_size=BATCH_SIZE, num_workers = 2)
     num_classes = len(ds["train"].features["label"].names)
     return train_loader, test_loader, num_classes
 
@@ -62,7 +66,9 @@ def main(model_names):
     for model_name in model_names:
         print(f"\n--- Training model: {model_name.upper()} ---")
         model = get_model(model_name, num_classes).to(device)
-
+        if torch.cuda.device_count() > 1:
+            print(f"Using {torch.cuda.device_count()} GPUs!")
+            model = nn.DataParallel(model)
         print(f"Trainable parameters: {count_parameters(model)}")
 
         optimizer = SGD(model.parameters(), lr=INIT_LR, momentum=MOMENTUM,

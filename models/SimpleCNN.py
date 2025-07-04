@@ -4,19 +4,22 @@ import torch.nn.functional as F
 
 from config import N_CHANNELS, BATCH_SIZE, IMG_SIZE
 
+
+
 # following the description in the EUROSAT dataset paper
 class CNN(nn.Module):
     def __init__(self, num_classes):
         super(CNN, self).__init__()
-        self.conv = nn.Sequential(
-                    nn.Conv2d(in_channels=3, out_channels=3, kernel_size=3, stride=1),
-                    nn.ReLU(),
-                    nn.MaxPool2d(kernel_size=4, stride=2)
-                )
         self.conv_block = nn.Sequential(
-                self.conv, 
-                self.conv, 
-                self.conv
+                    nn.Conv2d(in_channels=3, out_channels=64, kernel_size=3, stride=1),
+                    nn.ReLU(),
+                    nn.MaxPool2d(kernel_size=2), #64-32
+                    nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1),
+                    nn.ReLU(),
+                    nn.MaxPool2d(kernel_size=2), #32-16
+                    nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=1),
+                    nn.ReLU(),
+                    nn.MaxPool2d(kernel_size=2) #16-8
                 )
         self.fc = nn.Linear(in_features=self.calculate_in_features(), out_features=num_classes)
         

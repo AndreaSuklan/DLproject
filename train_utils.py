@@ -85,7 +85,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler
     val_accuracies = []
 
     best_val_acc = 0.0
-    best_model_path = f"{model.__class__.__name__}_best.pth"
+    best_model_path = f"{model.__class__.__name__}_my_try.pth"
 
     for epoch in range(num_epochs):
         print(f"\nEpoch {epoch+1}/{num_epochs}")
@@ -115,7 +115,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler
 
         # to save the model every 10 epochs
         if epoch % 10 == 0:
-            epoch_model_path = f"{model.__class__.__name__}_epoch{epoch}.pth"
+            epoch_model_path = f"{model.__class__.__name__}_my_try_epoch{epoch}.pth"
             torch.save(model.state_dict(), epoch_model_path)
     
     # Plot results
@@ -134,3 +134,4 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler
 #     num_epochs=120,
 #     device=device
 # )
+
